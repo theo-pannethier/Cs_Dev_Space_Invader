@@ -46,7 +46,7 @@ class vaisseau(tk.Tk):
         self.x=w//2
         self.y=550
         self.listeAlien=pListeAlien
-        self.liste2=[0,1,2,3]
+        self.liste2=[1,2,3,4]
         self.listeInterdite=[]
         self.vaisseaux=canva.create_rectangle(self.x, self.y, self.x+40, self.y+40, fill="red")
         self.lmissile=[]
@@ -78,6 +78,7 @@ class vaisseau(tk.Tk):
 
 
     def dynmissile(self,liste,liste2,listeInterdite):
+        annule=False
         Listecoord=[]
         for i in range (len(liste2)):
             '''boucle for permettant la recuperation des coordonées de chaque alien'''
@@ -112,21 +113,24 @@ class vaisseau(tk.Tk):
 
 
                         if val not in listeInterdite:
-
-
+                            liste[k].destroyAlien()
+                            liste.pop(k)
                             liste2.remove(val)
 
                             canva.delete(self.lmissile[i - w])
                             self.lmissile.pop(i - w)
                             w = w + 1
 
-                            liste[k].destroyAlien()
-                            liste.pop(k)
+
                             listeInterdite.append(val)
+                            annule=True
+                            break
+                if annule==True:
+                    break
 
 
 
-        canva.after(2,self.dynmissile,liste,liste2,listeInterdite)
+        canva.after(50,self.dynmissile,liste,liste2,listeInterdite)
 
 
 
@@ -142,10 +146,12 @@ class Alien(tk.Tk):
         self.alien = canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="white")
         self.move(self.dx, self.allee)
         self.lLaser=[]
-        #self.laser()
+        self.laser()
+        self.permissionDeTirer()
 
 
-       # self.tir()
+
+
     def donneCoordsX(self):
         return canva.coords(self.alien)[0]
     def donneCoordsX2(self):
@@ -158,39 +164,53 @@ class Alien(tk.Tk):
         canva.delete(self.alien)
         return 'gagné'
     
-    def laser(self):#marche mais ne bouge pas
+    def laser(self):
+
+
         nbrAlea=randint(0, 100)
         if nbrAlea>80:
 
             xlaser = canva.coords(self.alien)[0] + (
                     canva.coords(self.alien)[2] - canva.coords(self.alien)[0]) / 2
             ylaser = canva.coords(self.alien)[1]
-            self.rayonLaser = canva.create_rectangle(xlaser, ylaser, xlaser + 10, ylaser - 20, fill="green")
+            self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
+
             self.lLaser = self.lLaser + [self.rayonLaser]
+
+
+
+
         canva.after(500, self.laser)
 
-    """
-         def tir(self): 
-            x1Vaisseau = leVaisseau.CoordsX()
-            x2Vaisseau = leVaisseau.CoordsX2()
+    def permissionDeTirer(self):
+        canva.after(1000, self.tir)
 
-            w = 0
 
-            for i in range(0, len(self.lLaser)):
-                canva.move(self.lLaser[i - w], 0, 10)
-                if canva.coords(self.lLaser[i - w])[1] >= 400:
+    def tir(self):
+
+
+        x1Vaisseau = leVaisseau.CoordsX()
+        x2Vaisseau = leVaisseau.CoordsX2()
+
+        w = 0
+
+        for i in range(0, len(self.lLaser)):
+            canva.move(self.lLaser[i - w], 0, 10)
+            if canva.coords(self.lLaser[i - w])[1] >= 1000:
+                canva.delete(self.lLaser[i - w])
+                self.lLaser.pop(i - w)
+                w = w + 1
+            if self.lLaser != []:
+                if canva.coords(self.lLaser[i - w])[0] >= x1Vaisseau and canva.coords(self.lLaser[i - w])[2] <= x2Vaisseau and canva.coords(self.lLaser[i - w])[1] >= 980:
                     canva.delete(self.lLaser[i - w])
                     self.lLaser.pop(i - w)
                     w = w + 1
-                if self.lmissile != []:
-                    if canva.coords(self.lLaser[i - w])[0] >= x1Vaisseau and canva.coords(self.lLaser[i - w])[2] <= x2Vaisseau and ((canva.coords(self.laser[i - w])[1] >= 300)):
-                        canva.delete(self.lLaser[i - w])
-                        self.lLaser.pop(i - w)
-                        w = w + 1
-                        a = leVaisseau.destroyvaisseau()
+                    leVaisseau.destructionDuVaisseau()
 
-                canva.after(50, self.tir)
-           """
+
+
+            canva.after(100, self.tir)
+
     def move (self, dx, allee):
 
         if canva.coords(self.alien)==[]:

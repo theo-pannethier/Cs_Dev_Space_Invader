@@ -3,13 +3,13 @@ Programme gerant la partie graphique.
 
 ToDo:
     -faire le bouton qui declanche la partie ~ 
-    -menu proposant differantes possibilitées
+    -alien 
     -inserer image alien et vaisseau
 Theo Pannethier / Jeffrey Simon
-17/12/2020
+09/01/2021
 """
 import tkinter as tk
-from random import *
+from random import randint
 
 score=10
 score= str(score)
@@ -20,9 +20,9 @@ import tkinter.font as tkFont
 Fenetre = Tk()
 Fenetre.geometry('1200x600+75+20')
 Fond = PhotoImage(file = 'FondJeu.gif')
-normal = tkFont.Font(family='Helvetica',size=12)
+normal = tkFont.Font(family = 'Helvetica',size=12)
 ptmarq=tkFont.Font(family='Helvetica',size=14, weight='bold')
-
+Fenetre.title('Space Invader ' )
 canva = Canvas(Fenetre,height=600 , width=1100)
 item = canva.create_image(0,0,anchor='nw',image = Fond )
 canva.grid(row=0, column=0)
@@ -55,6 +55,7 @@ class vaisseau(tk.Tk):
         canva.bind_all("w", self.missiles)
     def destructionDuVaisseau(self):
         canva.delete(self.vaisseaux)
+        
         return 'perdu'
     def CoordsX(self):
         return canva.coords(self.vaisseaux)[0]
@@ -123,9 +124,9 @@ class vaisseau(tk.Tk):
 
 
                             listeInterdite.append(val)
-                            annule=True
+                            annule = True
                             break
-                if annule==True:
+                if annule == True:
                     break
 
 
@@ -139,13 +140,13 @@ class Alien(tk.Tk):
     def __init__(self,n):
 
         self.n = n
-        self.x= 100+self.n*100
+        self.x = 100+self.n*100
         self.y = 30
         self.dx = 10
-        self.allee=0
+        self.allee = 0
         self.alien = canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="white")
         self.move(self.dx, self.allee)
-        self.lLaser=[]
+        self.lLaser = []
         self.laser()
         self.permissionDeTirer()
 
@@ -168,7 +169,7 @@ class Alien(tk.Tk):
 
 
         nbrAlea=randint(0, 100)
-        if nbrAlea>80:
+        if nbrAlea>98:
 
             xlaser = canva.coords(self.alien)[0] + (
                     canva.coords(self.alien)[2] - canva.coords(self.alien)[0]) / 2
@@ -180,7 +181,8 @@ class Alien(tk.Tk):
 
 
 
-        canva.after(500, self.laser)
+        canva.after(0, self.tir)
+        canva.after(100, self.laser)
 
     def permissionDeTirer(self):
         canva.after(1000, self.tir)
@@ -195,57 +197,80 @@ class Alien(tk.Tk):
         w = 0
 
         for i in range(0, len(self.lLaser)):
-            canva.move(self.lLaser[i - w], 0, 10)
-            if canva.coords(self.lLaser[i - w])[1] >= 1000:
+
+
+            canva.move(self.lLaser[i], 0, 10)
+
+            if canva.coords(self.lLaser[i - w])[1] >= 600:
                 canva.delete(self.lLaser[i - w])
                 self.lLaser.pop(i - w)
                 w = w + 1
             if self.lLaser != []:
-                if canva.coords(self.lLaser[i - w])[0] >= x1Vaisseau and canva.coords(self.lLaser[i - w])[2] <= x2Vaisseau and canva.coords(self.lLaser[i - w])[1] >= 980:
+
+                if canva.coords(self.lLaser[i - w])[0] >= x1Vaisseau and ( 
+                   canva.coords(self.lLaser[i - w])[2] <= x2Vaisseau and (
+                   canva.coords(self.lLaser[i - w])[1] >= 550 )) :
+                    
                     canva.delete(self.lLaser[i - w])
                     self.lLaser.pop(i - w)
                     w = w + 1
+                    print('et')
                     leVaisseau.destructionDuVaisseau()
 
 
 
-            canva.after(100, self.tir)
-
     def move (self, dx, allee):
 
-        if canva.coords(self.alien)==[]:
+        if canva.coords(self.alien) == []:
             return "gagné"
         canva.move(self.alien, dx, 0)
-        if canva.coords(self.alien)[2]>1050:
+        if canva.coords(self.alien)[2] > 1050:
             dx=-10
             allee=allee+1
-        if canva.coords(self.alien)[0]<50:
+        if canva.coords(self.alien)[0] < 50:
             dx=10
             allee=allee+1
 
-        if allee==2:
-            allee=0
+        if allee == 2 :
+            allee = 0
             canva.move(self.alien, 0, 30)
             if canva.coords(self.alien)[1]>400:
-                a =leVaisseau.destructionDuVaisseau()
+                a = leVaisseau.destructionDuVaisseau()
                 return a
-
-
-
 
         canva.after(100, self.move, dx, allee)
 
 
-listeAlien=[]
+listeAlien = []
 
-nbrAlienLigne=4
+nbrAlienLigne = 4
+
+class ilot(tk.Tk):
+    def __init__(self):
+        self.x=500
+        self.y=400
+        self.vie = [1,1,1]
+        self.carréC = [0,canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="brown")]
+        self.carréD = [1,canva.create_rectangle(self.x+20, self.y, self.x + 20+20, self.y + 20, fill="brown")]
+        self.carréG = [2,canva.create_rectangle(self.x -20, self.y, self.x + 20 - 20, self.y + 20, fill="brown")]
 
 
+    def toucheIlot(self,pIndice):
+        if self.vie[pIndice] >= 2 :
+            self.vie[pIndice] = self.vie[pIndice] - 1
+        else:
+            for carre in [self.carréC,self.carréD,self.carréG]:
+                if carre[0] == pIndice :
+                   canva.delete(carre[1])
+   def ilotCoord(self):
+       return
+                   
 for i in range(nbrAlienLigne):
     listeAlien.append(Alien(i))
 
 
-leVaisseau=vaisseau(listeAlien)
+leVaisseau = vaisseau(listeAlien)
+ilot1=ilot()
 
 #boutton quiter
 

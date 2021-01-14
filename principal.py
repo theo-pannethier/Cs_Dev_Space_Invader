@@ -39,10 +39,12 @@ QuitBouton.pack(padx=0,pady=100)
 test.pack()
 w=1100
 height=600
+
+
+        
 class vaisseau(tk.Tk):
     def __init__(self,pListeAlien):
-
-
+        self.imageVaisseau = PhotoImage(file = "vaisseau.png")  #création image de fond du vaisseau
         self.x=w//2
         self.y=550
         self.listeAlien=pListeAlien
@@ -53,14 +55,20 @@ class vaisseau(tk.Tk):
         self.dynmissile(self.listeAlien,self.liste2,self.listeInterdite)
         canva.bind_all("<Key>", self.bouger)
         canva.bind_all("w", self.missiles)
+        
+        
     def destructionDuVaisseau(self):
         canva.delete(self.vaisseaux)
         
         return 'perdu'
     def CoordsX(self):
-        return canva.coords(self.vaisseaux)[0]
+        if canva.coords(self.vaisseaux) :
+            return canva.coords(self.vaisseaux)[0]
+       
     def CoordsX2(self):
-        return canva.coords(self.vaisseaux)[2]
+        if canva.coords(self.vaisseaux) :
+            return canva.coords(self.vaisseaux)[2]
+        
     def bouger(self, event):
         x,y=0,0
         if event.char=='q':
@@ -70,9 +78,11 @@ class vaisseau(tk.Tk):
 
         canva.move(self.vaisseaux,x,y)
 
+
+
     def missiles(self, event):
         xmissile=canva.coords(self.vaisseaux)[0]+(canva.coords(self.vaisseaux)[2]-
-                                                  canva.coords(self.vaisseaux)[0])/2
+                                        canva.coords(self.vaisseaux)[0])/2
         ymissile = canva.coords(self.vaisseaux)[1]
         self.missile = canva.create_rectangle(xmissile, ymissile, xmissile + 10, ymissile - 20, fill="blue")
         self.lmissile=self.lmissile+[self.missile]
@@ -93,7 +103,6 @@ class vaisseau(tk.Tk):
 
 
         w=0
-
 
         for i in range (0,len(self.lmissile)):
             canva.move(self.lmissile[i-w],0,-10)
@@ -130,7 +139,6 @@ class vaisseau(tk.Tk):
                     break
 
 
-
         canva.after(50,self.dynmissile,liste,liste2,listeInterdite)
 
 
@@ -146,7 +154,7 @@ class Alien(tk.Tk):
         self.allee = 0
         self.alien = canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="white")
         self.move(self.dx, self.allee)
-        self.lLaser = []
+        self.listeLaser = []
         self.laser()
         self.permissionDeTirer()
 
@@ -167,19 +175,13 @@ class Alien(tk.Tk):
     
     def laser(self):
 
-
+        coordAlien = canva.coords(self.alien)
         nbrAlea=randint(0, 100)
-        if nbrAlea>98:
-
-            xlaser = canva.coords(self.alien)[0] + (
-                    canva.coords(self.alien)[2] - canva.coords(self.alien)[0]) / 2
-            ylaser = canva.coords(self.alien)[1]
+        if nbrAlea>90 and coordAlien:
+            xlaser = coordAlien[0] + (coordAlien[2] - coordAlien[0]) / 2
+            ylaser = coordAlien[1]
             self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
-
-            self.lLaser = self.lLaser + [self.rayonLaser]
-
-
-
+            self.listeLaser = self.listeLaser + [self.rayonLaser]
 
         canva.after(0, self.tir)
         canva.after(100, self.laser)
@@ -193,30 +195,46 @@ class Alien(tk.Tk):
 
         x1Vaisseau = leVaisseau.CoordsX()
         x2Vaisseau = leVaisseau.CoordsX2()
-
+        coordIlot=ilot1.ilotCoord()
+        
         w = 0
+        i=0
+        while i < len(self.listeLaser):
+            laserIndice=self.listeLaser[i - w]
+            coordlaser=canva.coords(laserIndice)
+            canva.move(self.listeLaser[i], 0, 10)
 
-        for i in range(0, len(self.lLaser)):
-
-
-            canva.move(self.lLaser[i], 0, 10)
-
-            if canva.coords(self.lLaser[i - w])[1] >= 600:
-                canva.delete(self.lLaser[i - w])
-                self.lLaser.pop(i - w)
+            if coordlaser[1] >= 600:
+                canva.delete(laserIndice)
+                self.listeLaser.pop(i - w)
                 w = w + 1
-            if self.lLaser != []:
+                
+            if self.listeLaser != []:
+                k=0
+                while  k<len(coordIlot):
+                    if coordlaser[0] >= coordIlot[k][1][0] and ( 
+                       coordlaser[2] <= coordIlot[k][1][2] and (
+                       coordlaser[1] >= coordIlot[k][1][1] )):
+                        
+                        canva.delete(laserIndice)
+                        self.listeLaser.pop(i - w)
+                        ilot1.toucheIlot( coordIlot[k][0])
+                        w = w + 1
+                        coordIlot=ilot1.ilotCoord()
 
-                if canva.coords(self.lLaser[i - w])[0] >= x1Vaisseau and ( 
-                   canva.coords(self.lLaser[i - w])[2] <= x2Vaisseau and (
-                   canva.coords(self.lLaser[i - w])[1] >= 550 )) :
-                    
-                    canva.delete(self.lLaser[i - w])
-                    self.lLaser.pop(i - w)
-                    w = w + 1
-                    print('et')
-                    leVaisseau.destructionDuVaisseau()
-
+                    k+=1
+                if x1Vaisseau and x2Vaisseau:
+    
+                    if coordlaser[0] >= x1Vaisseau and ( 
+                       coordlaser[2] <= x2Vaisseau and (
+                       coordlaser[1] >= 550 )) :
+                        
+                        canva.delete(laserIndice)
+                        self.listeLaser.pop(i - w)
+                        w = w + 1
+        
+                        leVaisseau.destructionDuVaisseau()
+            i+=1
 
 
     def move (self, dx, allee):
@@ -238,7 +256,7 @@ class Alien(tk.Tk):
                 a = leVaisseau.destructionDuVaisseau()
                 return a
 
-        canva.after(100, self.move, dx, allee)
+        canva.after(100, lambda : self.move(dx, allee) )
 
 
 listeAlien = []
@@ -253,7 +271,7 @@ class ilot(tk.Tk):
         self.carréC = [0,canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="brown")]
         self.carréD = [1,canva.create_rectangle(self.x+20, self.y, self.x + 20+20, self.y + 20, fill="brown")]
         self.carréG = [2,canva.create_rectangle(self.x -20, self.y, self.x + 20 - 20, self.y + 20, fill="brown")]
-
+        self.liste=[self.carréC,self.carréD,self.carréG]
 
     def toucheIlot(self,pIndice):
         if self.vie[pIndice] >= 2 :
@@ -262,8 +280,14 @@ class ilot(tk.Tk):
             for carre in [self.carréC,self.carréD,self.carréG]:
                 if carre[0] == pIndice :
                    canva.delete(carre[1])
-   def ilotCoord(self):
-       return
+                   self.liste.remove(carre)
+                   
+    def ilotCoord(self):
+        coord=[]
+        for carre in self.liste:
+            coord.append([carre[0],canva.coords(carre[1])])
+        return coord
+
                    
 for i in range(nbrAlienLigne):
     listeAlien.append(Alien(i))
@@ -272,7 +296,6 @@ for i in range(nbrAlienLigne):
 leVaisseau = vaisseau(listeAlien)
 ilot1=ilot()
 
-#boutton quiter
 
 
 #afficher la fenetre

@@ -2,11 +2,14 @@
 Programme gerant la partie graphique.
 
 ToDo:
-    -faire le bouton qui declanche la partie ~ 
-    -alien 
+    -faire le bouton qui relance la partie ~ 
+    -alien special
+    -vie
+    -score
+    -modifie trajectoire de l'alien'
     -inserer image alien et vaisseau
 Theo Pannethier / Jeffrey Simon
-09/01/2021
+14/01/2021
 """
 import tkinter as tk
 from random import randint
@@ -48,18 +51,24 @@ class vaisseau(tk.Tk):
         self.x=w//2
         self.y=550
         self.listeAlien=pListeAlien
-        self.liste2=[1,2,3,4]
+        self.vivant=True
+        self.listeIndice=[]
         self.listeInterdite=[]
         self.vaisseaux=canva.create_rectangle(self.x, self.y, self.x+40, self.y+40, fill="red")
         self.lmissile=[]
-        self.dynmissile(self.listeAlien,self.liste2,self.listeInterdite)
-        canva.bind_all("<Key>", self.bouger)
-        canva.bind_all("w", self.missiles)
+        self.listeIndiceAlien()
+        self.dynmissile(self.listeAlien,self.listeIndice,self.listeInterdite)
+        canva.bind_all("<Left>", lambda direction='Left':self.bouger(direction))
+        canva.bind_all("<Right>", lambda direction='Right':self.bouger(direction))
+        canva.bind_all("<Key>", self.missiles)
         
+    def listeIndiceAlien(self):
+        for i in range ( len(self.listeAlien) ):
+            self.listeIndice.append(i+1)
         
     def destructionDuVaisseau(self):
         canva.delete(self.vaisseaux)
-        
+        self.vivant=False
         return 'perdu'
     def CoordsX(self):
         if canva.coords(self.vaisseaux) :
@@ -71,9 +80,9 @@ class vaisseau(tk.Tk):
         
     def bouger(self, event):
         x,y=0,0
-        if event.char=='q':
+        if event.keysym == 'Left':
            x=-10
-        if event.char=='d':
+        if event.keysym == 'Right':
             x=10
 
         canva.move(self.vaisseaux,x,y)
@@ -81,17 +90,20 @@ class vaisseau(tk.Tk):
 
 
     def missiles(self, event):
-        xmissile=canva.coords(self.vaisseaux)[0]+(canva.coords(self.vaisseaux)[2]-
-                                        canva.coords(self.vaisseaux)[0])/2
-        ymissile = canva.coords(self.vaisseaux)[1]
-        self.missile = canva.create_rectangle(xmissile, ymissile, xmissile + 10, ymissile - 20, fill="blue")
-        self.lmissile=self.lmissile+[self.missile]
+        
+        if  self.vivant and  event.keysym=='space':
+    
+            xmissile=canva.coords(self.vaisseaux)[0]+(canva.coords(self.vaisseaux)[2]-
+                                            canva.coords(self.vaisseaux)[0])/2
+            ymissile = canva.coords(self.vaisseaux)[1]
+            self.missile = canva.create_rectangle(xmissile-5, ymissile, xmissile + 5, ymissile - 20, fill="blue")
+            self.lmissile=self.lmissile+[self.missile]
 
 
-    def dynmissile(self,liste,liste2,listeInterdite):
+    def dynmissile(self,liste,listeIndice,listeInterdite):
         annule=False
         Listecoord=[]
-        for i in range (len(liste2)):
+        for i in range (len(listeIndice)):
             '''boucle for permettant la recuperation des coordonées de chaque alien'''
 
             ListeCoordAlien=[]
@@ -105,27 +117,29 @@ class vaisseau(tk.Tk):
         w=0
 
         for i in range (0,len(self.lmissile)):
-            canva.move(self.lmissile[i-w],0,-10)
-            if canva.coords(self.lmissile[i-w])[1]<=0:
-                canva.delete(self.lmissile[i - w])
+            objetMissile=self.lmissile[i-w]
+            canva.move(objetMissile,0,-10)
+            if canva.coords(objetMissile)[1]<=0:
+                canva.delete(objetMissile)
                 self.lmissile.pop(i - w)
                 w = w + 1
             if self.lmissile != []:
 
 
-                for k in range( len(liste2)):
-                    if canva.coords(self.lmissile[i - w])[0] >= Listecoord[k][0] and canva.coords(self.lmissile[i - w])[
-                        2] <= Listecoord[k][1] and ((canva.coords(self.lmissile[i - w])[1] >= Listecoord[k][2] and
-                                             canva.coords(self.lmissile[i - w])[1] <= Listecoord[k][3]) or (
-                                                    canva.coords(self.lmissile[i - w])[3] >= Listecoord[k][2] and
-                                                    canva.coords(self.lmissile[i - w])[3] <= Listecoord[k][3])):
-                        val=liste2[k]
+                for k in range( len(listeIndice)):
+                    objetMissile=self.lmissile[i - w]
+                    if canva.coords(objetMissile)[0] >= Listecoord[k][0] and canva.coords(objetMissile)[
+                        2] <= Listecoord[k][1] and ((canva.coords(objetMissile)[1] >= Listecoord[k][2] and
+                                             canva.coords(objetMissile)[1] <= Listecoord[k][3]) or (
+                                                    canva.coords(objetMissile)[3] >= Listecoord[k][2] and
+                                                    canva.coords(objetMissile)[3] <= Listecoord[k][3])):
+                        val=listeIndice[k]
 
 
                         if val not in listeInterdite:
                             liste[k].destroyAlien()
                             liste.pop(k)
-                            liste2.remove(val)
+                            listeIndice.remove(val)
 
                             canva.delete(self.lmissile[i - w])
                             self.lmissile.pop(i - w)
@@ -139,7 +153,7 @@ class vaisseau(tk.Tk):
                     break
 
 
-        canva.after(50,self.dynmissile,liste,liste2,listeInterdite)
+        canva.after(50,self.dynmissile,liste,listeIndice,listeInterdite)
 
 
 
@@ -177,7 +191,7 @@ class Alien(tk.Tk):
 
         coordAlien = canva.coords(self.alien)
         nbrAlea=randint(0, 100)
-        if nbrAlea>90 and coordAlien:
+        if nbrAlea>99 and coordAlien:
             xlaser = coordAlien[0] + (coordAlien[2] - coordAlien[0]) / 2
             ylaser = coordAlien[1]
             self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
@@ -214,7 +228,7 @@ class Alien(tk.Tk):
                 while  k<len(coordIlot):
                     if coordlaser[0] >= coordIlot[k][1][0] and ( 
                        coordlaser[2] <= coordIlot[k][1][2] and (
-                       coordlaser[1] >= coordIlot[k][1][1] )):
+                       coordlaser[3] >= coordIlot[k][1][1] )):
                         
                         canva.delete(laserIndice)
                         self.listeLaser.pop(i - w)
@@ -227,7 +241,7 @@ class Alien(tk.Tk):
     
                     if coordlaser[0] >= x1Vaisseau and ( 
                        coordlaser[2] <= x2Vaisseau and (
-                       coordlaser[1] >= 550 )) :
+                       coordlaser[3] >= 550 )) :
                         
                         canva.delete(laserIndice)
                         self.listeLaser.pop(i - w)
@@ -251,6 +265,7 @@ class Alien(tk.Tk):
 
         if allee == 2 :
             allee = 0
+           
             canva.move(self.alien, 0, 30)
             if canva.coords(self.alien)[1]>400:
                 a = leVaisseau.destructionDuVaisseau()
@@ -259,9 +274,7 @@ class Alien(tk.Tk):
         canva.after(100, lambda : self.move(dx, allee) )
 
 
-listeAlien = []
 
-nbrAlienLigne = 4
 
 class ilot(tk.Tk):
     def __init__(self):
@@ -288,10 +301,14 @@ class ilot(tk.Tk):
             coord.append([carre[0],canva.coords(carre[1])])
         return coord
 
-                   
+
+
+
+
+listeAlien = []
+nbrAlienLigne = 8                  
 for i in range(nbrAlienLigne):
     listeAlien.append(Alien(i))
-
 
 leVaisseau = vaisseau(listeAlien)
 ilot1=ilot()

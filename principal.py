@@ -168,9 +168,7 @@ class Alien(tk.Tk):
         self.allee = 0
         self.alien = canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="white")
         self.move(self.dx, self.allee)
-        self.listeLaser = []
-        self.laser()
-        self.permissionDeTirer()
+
 
 
 
@@ -187,19 +185,54 @@ class Alien(tk.Tk):
         canva.delete(self.alien)
         return 'gagné'
     
+
+
+    def move (self, dx, allee):
+
+        if canva.coords(self.alien) == []:
+            return "gagné"
+        canva.move(self.alien, dx, 0)
+        if canva.coords(self.alien)[2] > 1050:
+            dx=-10
+            allee=allee+1
+        if canva.coords(self.alien)[0] < 50:
+            dx=10
+            allee=allee+1
+
+        if allee == 2 :
+            allee = 0
+           
+            canva.move(self.alien, 0, 30)
+            if canva.coords(self.alien)[1]>400:
+                a = leVaisseau.destructionDuVaisseau()
+                return a
+
+        canva.after(100, lambda : self.move(dx, allee) )
+
+class tirer(tk.Tk):
+    def __init__(self,pListe) :
+        self.ListeAlien=pListe
+        self.listeLaser = []
+        self.laser()
+        self.permissionDeTirer()
+        
+        
     def laser(self):
+            i=0
+            while i<len(self.ListeAlien):
 
-        coordAlien = canva.coords(self.alien)
-        nbrAlea=randint(0, 100)
-        if nbrAlea>99 and coordAlien:
-            xlaser = coordAlien[0] + (coordAlien[2] - coordAlien[0]) / 2
-            ylaser = coordAlien[1]
-            self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
-            self.listeLaser = self.listeLaser + [self.rayonLaser]
-
-        canva.after(0, self.tir)
-        canva.after(100, self.laser)
-
+                Alien = self.ListeAlien[i]
+                
+                nbrAlea=randint(0, 100)
+                if nbrAlea>90 and Alien:
+                    xlaser = Alien.donneCoordsX() + (Alien.donneCoordsX2() - Alien.donneCoordsX()) / 2
+                    ylaser = Alien.donneCoordsY()
+                    self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
+                    self.listeLaser = self.listeLaser + [self.rayonLaser]
+                i+=1
+            canva.after(0, self.tir)
+            canva.after(100, self.laser)
+        
     def permissionDeTirer(self):
         canva.after(1000, self.tir)
 
@@ -251,27 +284,6 @@ class Alien(tk.Tk):
             i+=1
 
 
-    def move (self, dx, allee):
-
-        if canva.coords(self.alien) == []:
-            return "gagné"
-        canva.move(self.alien, dx, 0)
-        if canva.coords(self.alien)[2] > 1050:
-            dx=-10
-            allee=allee+1
-        if canva.coords(self.alien)[0] < 50:
-            dx=10
-            allee=allee+1
-
-        if allee == 2 :
-            allee = 0
-           
-            canva.move(self.alien, 0, 30)
-            if canva.coords(self.alien)[1]>400:
-                a = leVaisseau.destructionDuVaisseau()
-                return a
-
-        canva.after(100, lambda : self.move(dx, allee) )
 
 
 
@@ -302,17 +314,18 @@ class ilot(tk.Tk):
         return coord
 
 
-
-
-
+        
 listeAlien = []
-nbrAlienLigne = 8                  
+nbrAlienLigne = 8       
+
+      
 for i in range(nbrAlienLigne):
     listeAlien.append(Alien(i))
 
 leVaisseau = vaisseau(listeAlien)
 ilot1=ilot()
-
+tire2=tirer(listeAlien)
+print(listeAlien[0].donneCoordsX())
 
 
 #afficher la fenetre

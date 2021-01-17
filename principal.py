@@ -18,29 +18,6 @@ score= str(score)
 from  tkinter import Tk,Button,Frame,PhotoImage,Canvas,Label
 import tkinter.font as tkFont
 
-    
-Fenetre = Tk()
-Fenetre.geometry('1200x600+75+20')
-Fond = PhotoImage(file = 'FondJeu.gif')
-normal = tkFont.Font(family = 'Helvetica',size=12)
-ptmarq=tkFont.Font(family='Helvetica',size=14, weight='bold')
-Fenetre.title('Space Invader ' )
-canva = Canvas(Fenetre,height=600 , width=1100)
-item = canva.create_image(0,0,anchor='nw',image = Fond )
-canva.grid(row=0, column=0)
-
-menu = Frame(Fenetre)
-menu.grid(row=0, column=1)
-QuitBouton = Button(menu,text= "Quit", fg = 'red',width=10,
-                    command = Fenetre.destroy)
-NewGameBouton = Button(menu,text= "New game", fg = 'red',width=10)
-test = Label(menu , text='score : ' + score , font=normal )
-test.config()
-NewGameBouton.pack(padx=0,pady=0)
-QuitBouton.pack(padx=0,pady=100)
-test.pack()
-w=1100
-height=600
 
 
         
@@ -54,14 +31,17 @@ class vaisseau(tk.Tk):
         self.vivant=True
         self.listeIndice = []
         self.listeInterdite = []
+        self.affichage=Label(menu , text='vie : ' + '3' , font=normal )  
+        self.vie=3
         self.vaisseaux=canva.create_rectangle(self.x, self.y, self.x+40, self.y+40, fill="red")
         self.lmissile=[]
         self.listeIndiceAlien()
+        self.status = True
         self.dynmissile(self.listeAlien,self.listeIndice,self.listeInterdite)
         canva.bind_all("<Left>", lambda direction='Left':self.bouger(direction))
         canva.bind_all("<Right>", lambda direction='Right':self.bouger(direction))
         canva.bind_all("<Key>", self.missiles)
-        
+        self.affichage.pack()
     def listeIndiceAlien(self):
         """Programme donnant la liste des  indices des aliens"""
         for i in range ( len(self.listeAlien) ):
@@ -172,9 +152,29 @@ class vaisseau(tk.Tk):
 
         canva.after(50,self.dynmissile,liste,listeIndice,listeInterdite)
 
+    def getVie(self):
+        """permet de recuperer le nombre de point de vie"""
+        return self.vie
 
+    def vivre(self):
+        """permet de tuer le vaisseau si self.vie < 1 """
 
+        if self.vie <= 1:
+            self.vie =self.vie - 1
+            self.destructionDuVaisseau()
+            canva.after(100,self.fin)
+        else :
+            self.vie =self.vie - 1
 
+        self.affichage.destroy()
+        self.affichage=Label(menu , text='vie : ' + str(self.vie) , font=normal ) 
+        self.affichage.pack()
+
+    def fin(self):
+        canva.destroy()
+    
+    
+    
 class Alien(tk.Tk):
     """classe permettant la gestion des aliens
     (chaque alien est independant et representeun appel à Alien)"""
@@ -227,17 +227,18 @@ class Alien(tk.Tk):
         if canva.coords(self.alien)[2] > 1050:
             dx=-10
             allee=allee+1
+
         if canva.coords(self.alien)[0] < 50:
             dx=10
             allee=allee+1
 
         if allee == 2 :
             allee = 0
-           
+            
             canva.move(self.alien, 0, 30)
-            if canva.coords(self.alien)[1] > 400:
-                a = leVaisseau.destructionDuVaisseau()
-                return a
+            if canva.coords(self.alien)[1] > 400 :
+                leVaisseau.destructionDuVaisseau()
+                
 
         canva.after(100, lambda : self.move(dx, allee) )
 
@@ -247,15 +248,15 @@ class tirer(tk.Tk):
         sa creation s'imposait"""
         
         
-    def __init__(self,pListe) :
+    def __init__(self,pListe,leVaisseau,ilot) :
         """initialisation de la classe tirer
         Entrée:
             -pListe: liste des aliens"""
         self.ListeAlien=pListe
         self.listeLaser = []
         self.laser()
-
-        
+        self.leVaisseau=leVaisseau
+        self.ilot=ilot
     def laser(self):
             """methode permettant la géneration des lasers """
             i=0
@@ -279,9 +280,9 @@ class tirer(tk.Tk):
         """methode permettant le deplacement des missiles des aliens, ainsi que 
         leur gestion dynamique (colision avec le vaisseau,les blocs,sortie du canva)"""
 
-        x1Vaisseau = leVaisseau.CoordsX()
-        x2Vaisseau = leVaisseau.CoordsX2()
-        coordIlot=ilot1.ilotCoord()
+        x1Vaisseau = self.leVaisseau.CoordsX()
+        x2Vaisseau = self.leVaisseau.CoordsX2()
+        coordIlot=self.ilot.ilotCoord()
         
         w = 0
         i=0
@@ -304,9 +305,9 @@ class tirer(tk.Tk):
                         
                         canva.delete(laserIndice)
                         self.listeLaser.pop(i - w)
-                        ilot1.toucheIlot( coordIlot[k][0])
+                        self.ilot.toucheIlot( coordIlot[k][0])
                         w = w + 1
-                        coordIlot=ilot1.ilotCoord()
+                        coordIlot=self.ilot.ilotCoord()
 
                     k+=1
                 if x1Vaisseau and x2Vaisseau:
@@ -318,8 +319,8 @@ class tirer(tk.Tk):
                         canva.delete(laserIndice)
                         self.listeLaser.pop(i - w)
                         w = w + 1
-        
-                        leVaisseau.destructionDuVaisseau()
+                        self.leVaisseau.vivre()
+                        
             i+=1
 
 
@@ -360,7 +361,36 @@ class ilot(tk.Tk):
         return coord
 
 
+
+
+
+ 
+Fenetre = Tk()
+Fenetre.geometry('1200x600+75+20')
+Fond = PhotoImage(file = 'FondJeu.gif')
+normal = tkFont.Font(family = 'Helvetica',size=12)
+ptmarq=tkFont.Font(family='Helvetica',size=14, weight='bold')
+Fenetre.title('Space Invader ' )
+canva = Canvas(Fenetre,height=600 , width=1100)
+item = canva.create_image(0,0,anchor='nw',image = Fond )
+canva.grid(row=0, column=0)
+
+menu = Frame(Fenetre)
+menu.grid(row=0, column=1)
+QuitBouton = Button(menu,text= "Quit", fg = 'red',width=10,
+                    command = Fenetre.destroy)
+NewGameBouton = Button(menu,text= "New game", fg = 'red',width=10)
+score = Label(menu , text='score : ' + score , font=normal )
+
+NewGameBouton.pack(padx=0,pady=0)
+QuitBouton.pack(padx=0,pady=100)
+score.pack()
+w=1100
+height=600
+
+
         
+
 listeAlien = []
 nbrAlienLigne = 8       
 
@@ -370,7 +400,11 @@ for i in range(nbrAlienLigne):
 
 leVaisseau = vaisseau(listeAlien)
 ilot1=ilot()
-tire2=tirer(listeAlien)
+tire2=tirer(listeAlien,leVaisseau,ilot1)
+
+
+
+
 
 
 

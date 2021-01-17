@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 15 15:40:37 2021
+Programme contenant la classe ilot et ainsi permettant la creationet la gestion
+de la vie des ilots
 
-@author: Theo Pannethier
+
+ToDo:
+    
+    
+Theo Pannethier / Jeffrey Simon
+17/01/2021
 """
-
 import tkinter as tk
 
 class ilot(tk.Tk):
+    """classe permettant l'apparition de bloc"""
     def __init__(self,canva):
+        """initialisation de la classe avec notamment la creation visuelle des blocs"""
         self.canva=canva
         self.x=500
         self.y=400
@@ -19,6 +26,9 @@ class ilot(tk.Tk):
         self.liste=[self.carréC,self.carréD,self.carréG]
 
     def toucheIlot(self,pIndice):
+        """permet de reduire la vie d'un ilot si celui-ci est touché
+        Entrée:
+            -pIndice : indice de l'ilot touché"""
         if self.vie[pIndice] >= 2 :
             self.vie[pIndice] = self.vie[pIndice] - 1
         else:
@@ -28,6 +38,8 @@ class ilot(tk.Tk):
                    self.liste.remove(carre)
                    
     def ilotCoord(self):
+        """permet la recuperation à l'exterieur de la classe des coordonnées 
+        des ilots encore en vie (present dans self.iste)"""
         coord=[]
         for carre in self.liste:
             coord.append([carre[0],self.canva.coords(carre[1])])

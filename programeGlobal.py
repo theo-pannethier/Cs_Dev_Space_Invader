@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 15 15:44:02 2021
+Programme gerant la partie graphique ainsi que le lancement du programme.
+Ne marche qu'en partie peut etre à cause d'un probleme de preformance.
 
-@author: Theo Pannethier
+ToDo:
+    -regler le probleme 'kernel died'
+Theo Pannethier / Jeffrey Simon
+17/01/2021
+
+
 """
 
-import tkinter as tk
 from vaisseau import vaisseau2
 from ilot import ilot 
 from alien import Alien
+from tire import tirer
 score=10
 score= str(score)
 from  tkinter import Tk,Button,Frame,PhotoImage,Canvas,Label
@@ -47,7 +53,7 @@ for i in range(nbrAlienLigne):
 
 leVaisseau = vaisseau2(listeAlien,canva)
 ilot=ilot(canva)
-
+tire=tirer(listeAlien,canva)
 
 
 #afficher la fenetre

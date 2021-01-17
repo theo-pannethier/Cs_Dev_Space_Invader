@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 15 15:35:03 2021
-
-@author: Theo Pannethier
+Programme contenant la classe vaisseau
+celle-ci permet le deplacemnt, le tire, et la destruction du vaissseau
+ToDo:
+    -vie du vaisseau
+Theo Pannethier / Jeffrey Simon
+17/01/2021  
 """
 
 
@@ -11,7 +14,9 @@ import tkinter as tk
 
 
 class vaisseau2(tk.Tk):
+    """classe gerant le vaisseau et sa dynamique"""
     def __init__(self,pListeAlien,canva):
+        """initialisation de toutes les variables utiles à vaisseau"""
         w=1100
         self.canva=canva
         #self.imageVaisseau = PhotoImage(file = "vaisseau.png")  #création image de fond du vaisseau
@@ -30,22 +35,28 @@ class vaisseau2(tk.Tk):
         self.canva.bind_all("<Key>", self.missiles)
         
     def listeIndiceAlien(self):
+        """Programme donnant la liste des  indices des aliens"""
         for i in range ( len(self.listeAlien) ):
             self.listeIndice.append(i+1)
         
     def destructionDuVaisseau(self):
+        """"permet de faire disparaitre la vaisseau en cas defaite"""
         self.canva.delete(self.vaisseaux)
         self.vivant=False
         return 'perdu'
     def CoordsX(self):
+        """donne la coordonnée x1 (c'est  a dire le x à gauche du vaisseau)"""
         if self.canva.coords(self.vaisseaux) :
             return self.canva.coords(self.vaisseaux)[0]
        
     def CoordsX2(self):
+        """donne la coordonnée x2 (c'est  a dire le x à droite du vaisseau)"""
         if self.canva.coords(self.vaisseaux) :
             return self.canva.coords(self.vaisseaux)[2]
         
     def bouger(self, event):
+        """permet d'enregistrer la demande de deplacement du vaisseau
+        Entrée : event car permet de donner la touche appuyée"""
         x,y=0,0
         if event.keysym == 'Left':
            x=-10
@@ -57,6 +68,8 @@ class vaisseau2(tk.Tk):
 
 
     def missiles(self, event):
+        """permet de cree les missiles du vaisseau
+        Entrée : event car permet de donner la touche appuyée"""
         
         if  self.vivant and  event.keysym=='space':
     
@@ -68,6 +81,13 @@ class vaisseau2(tk.Tk):
 
 
     def dynmissile(self,liste,listeIndice,listeInterdite):
+        
+        """permet de faire bouger les missile du vaisseau
+        Entrée :
+            -liste : liste des aliens
+            -listeIndice : Liste de la liste des aliens
+            -listeInterdite: Liste des indices des aliens detruits"""
+            
         annule=False
         Listecoord=[]
         for i in range (len(listeIndice)):

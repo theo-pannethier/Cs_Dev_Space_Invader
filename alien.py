@@ -1,21 +1,29 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 15 15:26:51 2021
+Programme contenant la classe alien et ainsi permettant le tire sans deplacement
+du missile, le deplacement des aliens, et leur destruction
 
-@author: Theo Pannethier
+ToDo:
+    
+Theo Pannethier / Jeffrey Simon
+17/01/2021
 """
 
 
 
-from random import randint
+
 import tkinter as tk
 from vaisseau import vaisseau2
-from ilot import ilot
+
 
 
 class Alien(tk.Tk):
+    """classe permettant la gestion des aliens
+    (chaque alien est independant et representeun appel à Alien)"""
     def __init__(self,n,canva):
-
+        """initialisation de la classe alien
+        Entrée:
+            -n : indice de l'alien crée"""
         self.n = n
         self.canva=canva
         self.x = 100+self.n*100
@@ -24,12 +32,13 @@ class Alien(tk.Tk):
         self.allee = 0
         self.alien =  self.canva.create_rectangle(self.x, self.y, self.x + 20, self.y + 20, fill="white")
         self.move(self.dx, self.allee)
-        self.listeLaser = []
-        self.laser()
-        self.permissionDeTirer()
+#         self.listeLaser = []
+        # self.laser()
+        # self.permissionDeTirer()
 
 
-
+    """les methodes suivantes permettent de recuperer les coordonnées de chaque
+    alien à l'exterieur de la classe """
 
     def donneCoordsX(self):
         return  self.canva.coords(self.alien)[0]
@@ -39,76 +48,21 @@ class Alien(tk.Tk):
         return  self.canva.coords(self.alien)[1]
     def donneCoordsY2(self):
         return  self.canva.coords(self.alien)[3]
+    
+    
+    
+    
     def destroyAlien(self):
-         self.canva.delete(self.alien)
-         return 'gagné'
-    
-    def laser(self):
-
-        coordAlien =  self.canva.coords(self.alien)
-        nbrAlea=randint(0, 100)
-        if nbrAlea>90 and coordAlien:
-            xlaser = coordAlien[0] + (coordAlien[2] - coordAlien[0]) / 2
-            ylaser = coordAlien[1]
-            self.rayonLaser =  self.canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
-            self.listeLaser = self.listeLaser + [self.rayonLaser]
-
-        self.canva.after(0, self.tir)
-        self.canva.after(100, self.laser)
-
-    def permissionDeTirer(self):
-         self.canva.after(1000, self.tir)
-
-
-    def tir(self):
-
-        leVaisseau=vaisseau2()
-        x1Vaisseau = leVaisseau.CoordsX()
-        x2Vaisseau = leVaisseau.CoordsX2()
-        coordIlot=ilot.ilotCoord()
-        
-        w = 0
-        i=0
-        while i < len(self.listeLaser):
-            laserIndice=self.listeLaser[i - w]
-            coordlaser= self.canva.coords(laserIndice)
-            self.canva.move(self.listeLaser[i], 0, 10)
-
-            if coordlaser[1] >= 600:
-                self.canva.delete(laserIndice)
-                self.listeLaser.pop(i - w)
-                w = w + 1
-                
-            if self.listeLaser != []:
-                k=0
-                while  k<len(coordIlot):
-                    if coordlaser[0] >= coordIlot[k][1][0] and ( 
-                       coordlaser[2] <= coordIlot[k][1][2] and (
-                       coordlaser[3] >= coordIlot[k][1][1] )):
-                        
-                        self.canva.delete(laserIndice)
-                        self.listeLaser.pop(i - w)
-                        ilot.toucheIlot( coordIlot[k][0])
-                        w = w + 1
-                        coordIlot=ilot.ilotCoord()
-
-                    k+=1
-                if x1Vaisseau and x2Vaisseau:
-    
-                    if coordlaser[0] >= x1Vaisseau and ( 
-                       coordlaser[2] <= x2Vaisseau and (
-                       coordlaser[3] >= 550 )) :
-                        
-                        self.canva.delete(laserIndice)
-                        self.listeLaser.pop(i - w)
-                        w = w + 1
-        
-                        vaisseau2.destructionDuVaisseau()
-            i+=1
-
+        """programme qui appelé, permet de supprimer l'alien"""
+        self.canva.delete(self.alien)
+        return 'gagné'
 
     def move (self, dx, allee):
-
+        """programme gerant le deplacement horizontale et verticale de l'alien
+        Entrée:
+            -dx : permet de donner la vitesse à l'alien, ici soit 10 soit -10 
+                  en fonction de la direction de deplacement.
+            -allee : permet de compter le nombre d'aller effectué"""
         if  self.canva.coords(self.alien) == []:
             return "gagné"
         self.canva.move(self.alien, dx, 0)

@@ -10,6 +10,8 @@ Theo Pannethier / Jeffrey Simon
 
 
 """
+filin = open("information.txt", "r")
+filin
 
 from vaisseau import vaisseau2
 from ilot import ilot 

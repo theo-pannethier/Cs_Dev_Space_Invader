@@ -39,13 +39,13 @@ class tirer(tk.Tk):
     def laser(self):
             """methode permettant la géneration des lasers """
             i=0
-            while i<len(self.ListeAlien):
+            while i < len(self.ListeAlien):
                 
                 Alien = self.ListeAlien[i]
 
                 nbrAlea=randint(0, 100)
 
-                if nbrAlea>99 and Alien:
+                if nbrAlea > 99 and Alien:
 
                     xlaser = Alien.donneCoordsX() + (Alien.donneCoordsX2() - Alien.donneCoordsX()) / 2
                     ylaser = Alien.donneCoordsY()

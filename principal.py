@@ -48,13 +48,12 @@ class vaisseau(tk.Tk):
     """classe gerant le vaisseau et sa dynamique"""
     def __init__(self,pListeAlien):
         """initialisation de toutes les variables utiles à vaisseau"""
-        self.imageVaisseau = PhotoImage(file = "vaisseau.png")  #création image de fond du vaisseau
-        self.x=w//2
+        self.x = w//2
         self.y=550
         self.listeAlien=pListeAlien
         self.vivant=True
-        self.listeIndice=[]
-        self.listeInterdite=[]
+        self.listeIndice = []
+        self.listeInterdite = []
         self.vaisseaux=canva.create_rectangle(self.x, self.y, self.x+40, self.y+40, fill="red")
         self.lmissile=[]
         self.listeIndiceAlien()
@@ -101,7 +100,7 @@ class vaisseau(tk.Tk):
         """permet de cree les missiles du vaisseau
         Entrée : event car permet de donner la touche appuyée"""
         
-        if  self.vivant and  event.keysym=='space':
+        if  self.vivant and  event.keysym == 'space':
     
             xmissile=canva.coords(self.vaisseaux)[0]+(canva.coords(self.vaisseaux)[2]-
                                             canva.coords(self.vaisseaux)[0])/2
@@ -134,7 +133,7 @@ class vaisseau(tk.Tk):
         for i in range (0,len(self.lmissile)):
             objetMissile=self.lmissile[i-w]
             canva.move(objetMissile,0,-10)
-            if canva.coords(objetMissile)[1]<=0:
+            if canva.coords(objetMissile)[1] <= 0:
                 canva.delete(objetMissile)
                 self.lmissile.pop(i - w)
                 w = w + 1
@@ -143,11 +142,14 @@ class vaisseau(tk.Tk):
 
                 for k in range( len(listeIndice)):
                     objetMissile=self.lmissile[i - w]
-                    if canva.coords(objetMissile)[0] >= Listecoord[k][0] and canva.coords(objetMissile)[
-                        2] <= Listecoord[k][1] and ((canva.coords(objetMissile)[1] >= Listecoord[k][2] and
-                                             canva.coords(objetMissile)[1] <= Listecoord[k][3]) or (
-                                                    canva.coords(objetMissile)[3] >= Listecoord[k][2] and
-                                                    canva.coords(objetMissile)[3] <= Listecoord[k][3])):
+                    coordMissile=canva.coords(objetMissile)
+                    if coordMissile[0] >= Listecoord[k][0] and (
+                       coordMissile[2] <= Listecoord[k][1] and (
+                       coordMissile[1] >= Listecoord[k][2] and (
+                       coordMissile[1] <= Listecoord[k][3]) or (
+                       coordMissile[3] >= Listecoord[k][2] and (
+                       coordMissile[3] <= Listecoord[k][3])))):
+                        val=listeIndice[k]
                         val=listeIndice[k]
 
 
@@ -233,7 +235,7 @@ class Alien(tk.Tk):
             allee = 0
            
             canva.move(self.alien, 0, 30)
-            if canva.coords(self.alien)[1]>400:
+            if canva.coords(self.alien)[1] > 400:
                 a = leVaisseau.destructionDuVaisseau()
                 return a
 
@@ -257,12 +259,12 @@ class tirer(tk.Tk):
     def laser(self):
             """methode permettant la géneration des lasers """
             i=0
-            while i<len(self.ListeAlien):
+            while i < len(self.ListeAlien):
 
                 Alien = self.ListeAlien[i]
                 
                 nbrAlea=randint(0, 100)
-                if nbrAlea>90 and Alien:
+                if nbrAlea > 90 and Alien:
                     xlaser = Alien.donneCoordsX() + (Alien.donneCoordsX2() - Alien.donneCoordsX()) / 2
                     ylaser = Alien.donneCoordsY()
                     self.rayonLaser = canva.create_rectangle(xlaser, ylaser+20, xlaser + 10, ylaser + 40, fill="green")
@@ -295,7 +297,7 @@ class tirer(tk.Tk):
                 
             if self.listeLaser != []:
                 k=0
-                while  k<len(coordIlot):
+                while  k < len(coordIlot):
                     if coordlaser[0] >= coordIlot[k][1][0] and ( 
                        coordlaser[2] <= coordIlot[k][1][2] and (
                        coordlaser[3] >= coordIlot[k][1][1] )):

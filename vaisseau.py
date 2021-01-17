@@ -71,7 +71,7 @@ class vaisseau2(tk.Tk):
         """permet de cree les missiles du vaisseau
         Entrée : event car permet de donner la touche appuyée"""
         
-        if  self.vivant and  event.keysym=='space':
+        if  self.vivant and  event.keysym == 'space':
     
             xmissile=self.canva.coords(self.vaisseaux)[0]+(self.canva.coords(self.vaisseaux)[2]-
                                             self.canva.coords(self.vaisseaux)[0])/2
@@ -112,14 +112,16 @@ class vaisseau2(tk.Tk):
                 w = w + 1
             if self.lmissile != []:
 
-
+                
                 for k in range( len(listeIndice)):
                     objetMissile=self.lmissile[i - w]
-                    if self.canva.coords(objetMissile)[0] >= Listecoord[k][0] and self.canva.coords(objetMissile)[
-                        2] <= Listecoord[k][1] and ((self.canva.coords(objetMissile)[1] >= Listecoord[k][2] and
-                                             self.canva.coords(objetMissile)[1] <= Listecoord[k][3]) or (
-                                                    self.canva.coords(objetMissile)[3] >= Listecoord[k][2] and
-                                                    self.canva.coords(objetMissile)[3] <= Listecoord[k][3])):
+                    coordMissile=self.canva.coords(objetMissile)
+                    if coordMissile[0] >= Listecoord[k][0] and (
+                       coordMissile[2] <= Listecoord[k][1] and (
+                       coordMissile[1] >= Listecoord[k][2] and (
+                       coordMissile[1] <= Listecoord[k][3]) or (
+                       coordMissile[3] >= Listecoord[k][2] and (
+                       coordMissile[3] <= Listecoord[k][3])))):
                         val=listeIndice[k]
 
 

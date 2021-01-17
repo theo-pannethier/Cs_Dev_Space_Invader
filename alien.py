@@ -77,7 +77,7 @@ class Alien(tk.Tk):
             allee = 0
            
             self.canva.move(self.alien, 0, 30)
-            if self.canva.coords(self.alien)[1]>400:
+            if self.canva.coords(self.alien)[1] > 400:
                 a = vaisseau2.destructionDuVaisseau()
                 return a
 

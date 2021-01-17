@@ -172,7 +172,10 @@ class vaisseau(tk.Tk):
 
     def fin(self):
         canva.destroy()
-    
+        fin = Canvas(Fenetre,height=600 , width=1100)
+        fin.grid(row=0, column=0)
+        gameOver= Label(fin , text='Game Over' , font=normal )
+        gameOver.pack()
     
     
 class Alien(tk.Tk):
